@@ -2,32 +2,39 @@ import java.io.*;
 import java.net.*;
 
 public class client {
-
+	public Socket echoSocket;
+	
 	public static void main(String args[]) throws IOException {
 		
-		if (args.length != 2) {
-			System.err.println("Please use 'java client <hostname> <port>'");
+		if (args.length != 1) {
+			System.err.println("Please use 'java client <hostname>'");
 			System.exit(1);
 		}
 		
-		String hostName = args[0];
-		int portNumber = Integer.parseInt(args[1]);
+		try {
+			new client().runit(args[0]);
+		}
+		catch(Throwable t) {
+			t.printStackTrace(System.err);
+		}
+	}	
+	public void runit(String hostName)
+	{
+		int portNumber = 999;
 
 		try {
-			Socket echoSocket = new Socket(hostName, portNumber);
+			this.echoSocket = new Socket(hostName, portNumber);
+			Printer printer = new Printer();
+			Thread t = new Thread(printer);
+			t.start();
 			PrintWriter out =
 				new PrintWriter(echoSocket.getOutputStream(), true);
-			BufferedReader in =
-				new BufferedReader(
-				new InputStreamReader(echoSocket.getInputStream()));
 			BufferedReader stdIn =
 				new BufferedReader(
 				new InputStreamReader(System.in));
 			String userInput;
-			
 			while ((userInput = stdIn.readLine()) != null) {
 				out.println(userInput);
-				System.out.println("echo: " + in.readLine());
 			}
 		}
 		
@@ -37,8 +44,29 @@ public class client {
 		}
 		
 		catch (IOException e) {
-			System.err.println("I can't seem to get and I/O connection to " + hostName);
+			System.err.println("I can't seem to get an I/O connection to " + hostName);
 			System.exit(1);
+		}
+	}
+	
+	class Printer implements Runnable {
+		
+		public void run(){
+			String input = null;
+			try {
+				BufferedReader in =
+						new BufferedReader(
+						new InputStreamReader(echoSocket.getInputStream()));
+				while (true) {
+					if ((input = in.readLine()) != null)
+						System.out.println(input);
+				}
+			}
+			
+			catch (IOException e) {
+				System.err.println("Connection Lost");
+				return;
+			}
 		}
 	}
 }
