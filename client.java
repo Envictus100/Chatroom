@@ -58,8 +58,9 @@ public class client {
 						new BufferedReader(
 						new InputStreamReader(echoSocket.getInputStream()));
 				while (true) {
-					if ((input = in.readLine()) != null)
+					if ((input = in.readLine()) != null) {
 						System.out.println(input);
+					}
 				}
 			}
 			

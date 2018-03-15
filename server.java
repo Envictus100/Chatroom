@@ -1,7 +1,11 @@
 import java.net.*;
 import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.*;
 
 public class server {
+	private ArrayList<ServerThread> threadList = new ArrayList<>();
 	
 	public static void main(String args[]) throws IOException {
 		if (args.length != 0) {
@@ -33,9 +37,7 @@ public class server {
 		
 		while (true) {
 			try {
-				System.out.println("You make it here");
 				clientSocket = serverSocket.accept();
-				System.out.println("And here");
 			}
 			
 			catch (IOException e) {
@@ -43,8 +45,12 @@ public class server {
 					+ portNumber);
 			}
 			
-			ServerThread thisone = new ServerThread(clientSocket);
-			thisone.start();
+			ServerThread thisone = new ServerThread(clientSocket, threadList);
+			Thread t = new Thread(thisone);
+			t.start();
+			synchronized (threadList) {
+				threadList.add(thisone);
+			}
 		}
 	}
 }
