@@ -75,7 +75,7 @@ public class client {
 				//This is where it monitors for incoming messages
 				while (true) {
 					if ((input = in.readLine()) != null) {
-						System.out.println(input);
+						messageParser(input);
 					}
 				}
 			}
@@ -83,6 +83,47 @@ public class client {
 			catch (IOException e) {
 				System.err.println("Connection Lost");
 				return;
+			}
+		}
+		
+		public void messageParser(String message) {
+			String[] messageArray = message.split(" ");
+			message = "";
+
+			//Handles case if File is received
+			if(messageArray[0].equalsIgnoreCase("/file")) {
+				
+				for(int i = 2; i < messageArray.length; i++)
+					message = message + messageArray[i] + " ";
+				
+				String home = System.getProperty("user.home");
+				String[] filePath = messageArray[1].split("/");
+				String fileName = filePath[filePath.length-1];
+				
+				try{
+					File file = new File(home+"/Downloads/" + fileName);
+					System.out.println("*Downloading " + fileName + " to " + file + " *");
+					BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+					writer.write(message);
+					writer.close();
+					System.out.println("*" + fileName + " Downloaded*");
+				}
+				
+				catch(Exception e) {
+					System.out.println("Problem saving a file: " + messageArray[1]);
+				}
+			}
+			
+			//Handles case if message is received
+			else if(messageArray[0].equalsIgnoreCase("/msg")) {
+				for(int i = 1; i < messageArray.length; i++)
+				message = message + messageArray[i] + " ";
+				System.out.println(message);
+			}
+			
+			//Handles all other cases
+			else {
+				System.out.println("You broke it dood: " + message);
 			}
 		}
 	}

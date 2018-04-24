@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 
 public class server {
 	private ArrayList<ServerThread> threadList = new ArrayList<ServerThread>();
+	private String password;
 	
 	public static void main(String args[]) throws IOException {
 		if (args.length != 0) {
@@ -24,6 +25,9 @@ public class server {
 	//Gets run by an instance of the server class. Contains all the important stuff.
 	public void runit()
 	{
+		System.out.println("Please set a password. Make it a good one!");
+		this.password = new Scanner(System.in).nextLine();
+		
 		int portNumber = 999;
 		ServerSocket serverSocket = null;
 		Socket clientSocket = null;
@@ -53,7 +57,7 @@ public class server {
 			
 			//Creates a new instance of ServerThread for each connection, which is where
 			//all the cool magic happens
-			ServerThread thisone = new ServerThread(clientSocket, threadList);
+			ServerThread thisone = new ServerThread(clientSocket, threadList, password);
 			Thread t = new Thread(thisone);
 			t.start();
 			
